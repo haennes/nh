@@ -150,13 +150,25 @@ impl HomeRebuildArgs {
             return Ok(());
         }
 
+        let notify = notify::notify()
+            .with_summary("nh home switch")
+            .with_body("Home Manager configuration built successfully.");
+
         if self.common.ask {
             info!("Apply the config?");
+
+            _ = notify
+                .with_urgency(notify::Urgency::Critical)
+                .with_action("default", "Apply")
+                .send();
+
             let confirmation = dialoguer::Confirm::new().default(false).interact()?;
 
             if !confirmation {
                 bail!("User rejected the new config");
             }
+        } else {
+            _ = notify.send();
         }
 
         if let Some(ext) = &self.backup_extension {

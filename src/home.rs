@@ -6,12 +6,12 @@ use color_eyre::Result;
 use color_eyre::eyre::{Context, bail};
 use tracing::{debug, info, warn};
 
-use crate::commands;
 use crate::commands::Command;
 use crate::installable::Installable;
 use crate::interface::{self, DiffType, HomeRebuildArgs, HomeReplArgs, HomeSubcommand};
 use crate::update::update;
 use crate::util::{get_hostname, print_dix_diff};
+use crate::{commands, notify};
 
 impl interface::HomeArgs {
     /// Run the `home` subcommand.
@@ -171,6 +171,12 @@ impl HomeRebuildArgs {
             .message("Activating configuration")
             .run()
             .wrap_err("Activation failed")?;
+        if let Ok(notify) = notify::notify(
+            "nh home switch",
+            "Home Manager configuration switched successfully",
+        ) {
+            _ = notify.send();
+        }
 
         // Make sure out_path is not accidentally dropped
         // https://docs.rs/tempfile/3.12.0/tempfile/index.html#early-drop-pitfall

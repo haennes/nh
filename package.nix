@@ -3,13 +3,18 @@
   rustPlatform,
   installShellFiles,
   makeBinaryWrapper,
+  nvd,
+  nixos-icons,
   use-nom ? true,
   nix-output-monitor ? null,
   rev ? "dirty",
 }:
 assert use-nom -> nix-output-monitor != null;
 let
-  runtimeDeps = lib.optionals use-nom [ nix-output-monitor ];
+  runtimeDeps = [
+    nixos-icons
+    nvd
+  ] ++ lib.optionals use-nom [ nix-output-monitor ];
   cargoToml = builtins.fromTOML (builtins.readFile ./Cargo.toml);
 in
 rustPlatform.buildRustPackage {

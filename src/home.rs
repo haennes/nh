@@ -211,11 +211,12 @@ impl HomeRebuildArgs {
             .message("Activating configuration")
             .run()
             .wrap_err("Activation failed")?;
-        if let Ok(notify) = notify::notify(
-            "nh home switch",
-            "Home Manager configuration switched successfully",
-        ) {
-            _ = notify.send();
+        if let Err(e) = notify::notify()
+            .with_summary("nh home switch")
+            .with_body("Home Manager configuration switched successfully")
+            .send()
+        {
+            warn!(?e, "Failed to send notification");
         }
 
         // Make sure out_path is not accidentally dropped
